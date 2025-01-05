@@ -1,0 +1,284 @@
+{
+	"info": {
+		"_postman_id": "6a928c56-b821-4079-aa78-f07b3b77b64a",
+		"name": "UserManagementAPITestForCI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37921395"
+	},
+	"item": [
+		{
+			"name": "CreateUser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function getRandomName() {\r",
+							"    // Arrays of sample first and last names\r",
+							"    const firstNames = [\"John\", \"Jane\", \"Michael\", \"Emily\", \"David\", \"Emma\", \"Chris\", \"Sophia\", \"James\", \"Olivia\"];\r",
+							"    const lastNames = [\"Smith\", \"Johnson\", \"Brown\", \"Taylor\", \"Anderson\", \"Thomas\", \"Jackson\", \"White\", \"Harris\", \"Martin\"];\r",
+							"\r",
+							"    // Generate random index for first and last names\r",
+							"    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];\r",
+							"    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];\r",
+							"\r",
+							"    // Combine the names\r",
+							"    return firstName + \" \" + lastName;\r",
+							"}\r",
+							"\r",
+							"// Example usage\r",
+							"let randomName = getRandomName();\r",
+							"console.log(\"Generated Name is \" + randomName)\r",
+							"pm.collectionVariables.set(\"UsenameForCreate\" , randomName)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Your test name\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"UsenameForCreate\"));\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{UsenameForCreate}}\",\r\n    \"job\": \"leader\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/api/users",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUserNotFound",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/api/users/23",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"23"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUser2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify the details of user with id 2\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.data.id).to.equal(parseInt(pm.collectionVariables.get('UserId')));\r",
+							"    pm.expect(jsonData.data.email).to.eql(pm.collectionVariables.get('Useremail'))\r",
+							"    \r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://reqres.in/api/users/:id",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{UserId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://reqres.in/api",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"Executing OPTIONS Method\")"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify the details of Header Allowed\", function () {\r",
+							"    // Verify the header \"Access-Control-Allow-Methods\"\r",
+							"    let allowedMethods = pm.response.headers.get(\"Access-Control-Allow-Methods\");\r",
+							"    pm.expect(allowedMethods).to.include(\"GET\"); \r",
+							"    pm.expect(allowedMethods).to.include(\"HEAD\");\r",
+							"    pm.expect(allowedMethods).to.include(\"PUT\");\r",
+							"    pm.expect(allowedMethods).to.include(\"PATCH\");\r",
+							"    pm.expect(allowedMethods).to.include(\"POST\");\r",
+							"    pm.expect(allowedMethods).to.include(\"DELETE\");\r",
+							"    \r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://reqres.in/api",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"\r",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BaseUrl",
+			"value": "https://reqres.in"
+		},
+		{
+			"key": "UsenameForCreate",
+			"value": "Sophia Jackson"
+		},
+		{
+			"key": "UserId",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "Useremail",
+			"value": "janet.weaver@reqres.in",
+			"type": "string"
+		}
+	]
+}
