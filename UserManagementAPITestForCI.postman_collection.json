@@ -183,7 +183,7 @@
 			"response": []
 		},
 		{
-			"name": "https://reqres.in/api",
+			"name": "CheckOpton",
 			"event": [
 				{
 					"listen": "prerequest",
